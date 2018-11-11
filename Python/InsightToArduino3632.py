@@ -1,10 +1,11 @@
 from Insight3632 import *
 from arduinoCom3632 import *
 from datetime import datetime
+import time
+import serial
 
 # -------------------------------------------------------------------------
 # Make dictionary for logEmoState
-
 header = ['Time', 'UserID', 'wirelessSigStatus', 'Blink', 'leftWink',
           'rightWink', 'Surprise', 'Frown',
           'Smile', 'Clench',
@@ -12,9 +13,8 @@ header = ['Time', 'UserID', 'wirelessSigStatus', 'Blink', 'leftWink',
 emoStateDict = {}
 for emoState in header:#Loops throguh each value in header
     emoStateDict.setdefault(emoState, None)#Sets default emoState values to None if no key is returned.
-    
-           
-def send_emo_state_to_arduino():
+
+def send_emo_state_to_arduino(blink_count):
     #Sets value of all key pairs to values recieved from API in Insight class
     emoStateDict['Time'] = insight.get_time_from_start(insight.eState)
     emoStateDict['UserID'] = insight.get_userID(insight.eEvent, insight.user)
@@ -30,8 +30,7 @@ def send_emo_state_to_arduino():
 
     emoStateDict['MentalCommand Action'] = insight.get_mental_command_current_action(insight.eState)
     emoStateDict['MentalCommand Power'] = insight.get_mental_command_current_action_power(insight.eState)
-    #print(
-    print (emoStateDict) #prints headset parameters
+    #print (emoStateDict) #prints headset parameters
     emoStateTuple = (emoStateDict['Time'], emoStateDict['UserID'],#Creates tuple of these parameters
                      emoStateDict['wirelessSigStatus'], emoStateDict['Blink'],
                      emoStateDict['leftWink'], emoStateDict['rightWink'],
@@ -41,12 +40,31 @@ def send_emo_state_to_arduino():
                      emoStateDict['MentalCommand Power'])
 
     #valToArduino(emoStateTuple) Only need this to send emostates to arduino, dont need that
-    check_blink(emoStateTuple)
-def check_blink(emoStateTuple):#Check the blink state of headset parameters, call motor on function if high, call motor off if low
+    #check_blink(emoStateTuple)
     if emoStateTuple[3] == 1:
-        motor_on()
-    elif emoStateTuple[3] == 0:
-        motor_off()
+        blink_count = blink_count + 1
+        if blink_count == 2:
+            motor_on()
+            print "motor on"
+            blink_count = 0
+            return blink_count
+        else:
+            return blink_count
+    else:
+        blink_count = 0
+        return blink_count
+#def check_blink(emoStateTuple):#Check the blink state of headset parameters, call motor on function if high, call motor off if low
+#    if emoStateTuple[3] == 1:
+#        blink_count = 1
+#        print blink_count
+#        if blink_count == 2:
+#            print "cool"
+#            motor_on()
+#            blink_count = 0
+#    return blink_count
+    #elif emoStateTuple[3] == 0:
+    #    motor_off()
+    
 # # -------------------------------------------------------------------------
 #
 # # connect to Arduino
@@ -88,10 +106,14 @@ insight.connect()
 last_command = None
 
 # event loop to update Insight state
-#need while loop to run every 7.8ms
+#need while loop to run every 7.8ms for 128 hz
+blink_count = 0
 while (1):#Determine if the event is a blink, if so call motor on function
     # set of operations to get state from Insight
     # returns 0 if successful
+    now = time.time()
+   # print now
+    #print blink_count
     state = insight.get_state(insight.eEvent)
     if state== 0:
         # event types IEE_Event_t returns 64 if EmoStateUpdated
@@ -100,21 +122,22 @@ while (1):#Determine if the event is a blink, if so call motor on function
         if eventType == 64:
             insight.get_engine_event_emo_state(insight.eEvent, insight.eState)
             timestamp = insight.get_time_from_start(insight.eState)
-            send_emo_state_to_arduino()
-
-            print "%10.3f New EmoState from user %d ...\r" % (timestamp,
-                                                              user_ID)
+            blink_count = send_emo_state_to_arduino(blink_count)
+            #print "%10.3f New EmoState from user %d ...\r" % (timestamp,
+                                                              #user_ID)
                 
             #Limit the command rate so that we won't overflow the buffer
-            if not last_command:
-                last_command = datetime.now()
-                send_emo_state_to_arduino()
-            else:
-                diff = datetime.now()-last_command
-                if (diff.microseconds/1000.0 > 250.0):
-                    last_command = datetime.now()
-                    send_emo_state_to_arduino()
+            #if not last_command:
+            #    last_command = datetime.now()
+            #    send_emo_state_to_arduino()
+            #else:
+            #    diff = datetime.now()-last_command
+            #    if (diff.microseconds/1000.0 > 250.0):
+            #        last_command = datetime.now()
+            #        send_emo_state_to_arduino()
 
     elif state != 0x0600:
         print "Internal error in Emotiv Engine ! "
-    
+    elapsed = time.time() - now
+    print elapsed
+
