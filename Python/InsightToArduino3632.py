@@ -16,32 +16,32 @@ for emoState in header:#Loops throguh each value in header
 
 def send_emo_state_to_arduino(blink_count):
     #Sets value of all key pairs to values recieved from API in Insight class
-    emoStateDict['Time'] = insight.get_time_from_start(insight.eState)
-    emoStateDict['UserID'] = insight.get_userID(insight.eEvent, insight.user)
-    emoStateDict['wirelessSigStatus'] = insight.get_wireless_signal_status(insight.eState)
-    emoStateDict['Blink'] = insight.get_facial_expression_is_blink(insight.eState)
-    emoStateDict['leftWink'] = insight.get_left_wink(insight.eState)
-    emoStateDict['rightWink'] = insight.get_right_wink(insight.eState)
+    #emoStateDict['Time'] = insight.get_time_from_start(insight.eState)
+    #emoStateDict['UserID'] = insight.get_userID(insight.eEvent, insight.user)
+    #emoStateDict['wirelessSigStatus'] = insight.get_wireless_signal_status(insight.eState)
+    #emoStateDict['Blink'] = insight.get_facial_expression_is_blink(insight.eState)
+    #emoStateDict['leftWink'] = insight.get_left_wink(insight.eState)
+    #emoStateDict['rightWink'] = insight.get_right_wink(insight.eState)
 
-    emoStateDict['Surprise'] = insight.get_surprise(insight.eState)
-    emoStateDict['Frown'] = insight.get_frown(insight.eState)
-    emoStateDict['Clench'] = insight.get_clench(insight.eState)
-    emoStateDict['Smile'] = insight.get_smile(insight.eState)
+    #emoStateDict['Surprise'] = insight.get_surprise(insight.eState)
+    #emoStateDict['Frown'] = insight.get_frown(insight.eState)
+    #emoStateDict['Clench'] = insight.get_clench(insight.eState)
+    #emoStateDict['Smile'] = insight.get_smile(insight.eState)
 
-    emoStateDict['MentalCommand Action'] = insight.get_mental_command_current_action(insight.eState)
-    emoStateDict['MentalCommand Power'] = insight.get_mental_command_current_action_power(insight.eState)
+    #emoStateDict['MentalCommand Action'] = insight.get_mental_command_current_action(insight.eState)
+    #emoStateDict['MentalCommand Power'] = insight.get_mental_command_current_action_power(insight.eState)
     #print (emoStateDict) #prints headset parameters
-    emoStateTuple = (emoStateDict['Time'], emoStateDict['UserID'],#Creates tuple of these parameters
-                     emoStateDict['wirelessSigStatus'], emoStateDict['Blink'],
-                     emoStateDict['leftWink'], emoStateDict['rightWink'],
-                     emoStateDict['Surprise'], emoStateDict['Frown'],
-                     emoStateDict['Clench'], emoStateDict['Smile'],
-                     emoStateDict['MentalCommand Action'],
-                     emoStateDict['MentalCommand Power'])
+    #emoStateTuple = (emoStateDict['Time'], emoStateDict['UserID'],#Creates tuple of these parameters
+    #                emoStateDict['wirelessSigStatus'], emoStateDict['Blink'],
+    #                 emoStateDict['leftWink'], emoStateDict['rightWink'],
+    #                 emoStateDict['Surprise'], emoStateDict['Frown'],
+    #                 emoStateDict['Clench'], emoStateDict['Smile'],
+    #                 emoStateDict['MentalCommand Action'],
+    #                 emoStateDict['MentalCommand Power'])
 
     #valToArduino(emoStateTuple) Only need this to send emostates to arduino, dont need that
     #check_blink(emoStateTuple)
-    if emoStateTuple[3] == 1:
+    if insight.get_facial_expression_is_blink(insight.eState) == 1:
         blink_count = blink_count + 1
         if blink_count == 2:
             motor_on()
@@ -111,7 +111,7 @@ blink_count = 0
 while (1):#Determine if the event is a blink, if so call motor on function
     # set of operations to get state from Insight
     # returns 0 if successful
-    now = time.time()
+    #now = time.time()
    # print now
     #print blink_count
     state = insight.get_state(insight.eEvent)
@@ -138,6 +138,6 @@ while (1):#Determine if the event is a blink, if so call motor on function
 
     elif state != 0x0600:
         print "Internal error in Emotiv Engine ! "
-    elapsed = time.time() - now
-    print elapsed
+    #elapsed = time.time() - now
+    #print elapsed
 
