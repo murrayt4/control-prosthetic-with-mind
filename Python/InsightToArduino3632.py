@@ -3,6 +3,8 @@ from arduinoCom3632 import *
 from datetime import datetime
 import time
 import serial
+import json
+import urllib2
 
 # -------------------------------------------------------------------------
 # Make dictionary for logEmoState
@@ -30,18 +32,24 @@ def send_emo_state_to_arduino(blink_count):
 
     emoStateDict['MentalCommand Action'] = insight.get_mental_command_current_action(insight.eState)
     emoStateDict['MentalCommand Power'] = insight.get_mental_command_current_action_power(insight.eState)
-    #print (emoStateDict) #prints headset parameters
-    emoStateTuple = (emoStateDict['Time'], emoStateDict['UserID'],#Creates tuple of these parameters
-                     emoStateDict['wirelessSigStatus'], emoStateDict['Blink'],
-                     emoStateDict['leftWink'], emoStateDict['rightWink'],
-                     emoStateDict['Surprise'], emoStateDict['Frown'],
-                     emoStateDict['Clench'], emoStateDict['Smile'],
-                     emoStateDict['MentalCommand Action'],
-                     emoStateDict['MentalCommand Power'])
+    #print emoStateDict #prints headset parameters
+    #emoStateTuple = (emoStateDict['Time'], emoStateDict['UserID'],#Creates tuple of these parameters
+    #                emoStateDict['wirelessSigStatus'], emoStateDict['Blink'],
+    #                 emoStateDict['leftWink'], emoStateDict['rightWink'],
+    #                 emoStateDict['Surprise'], emoStateDict['Frown'],
+    #                 emoStateDict['Clench'], emoStateDict['Smile'],
+    #                 emoStateDict['MentalCommand Action'],
+    #                 emoStateDict['MentalCommand Power'])
 
     #valToArduino(emoStateTuple) Only need this to send emostates to arduino, dont need that
     #check_blink(emoStateTuple)
-    if emoStateTuple[3] == 1:
+    data = "time=" + str(emoStateDict['Time']) + "&userid=" + str(emoStateDict['UserID']) + "&signal=" + str(emoStateDict['wirelessSigStatus']) + "&blink=" + str(emoStateDict['Blink'])+ "&leftwink=" + str(emoStateDict['leftWink']) + "&rightwink" + str(emoStateDict['rightWink']) + "&surprise" + str(emoStateDict['Surprise']) + "&frown=" + str(emoStateDict['Frown']) + "&clench=" + str(emoStateDict['Clench']) + "&smile=" + str(emoStateDict['Smile']) + "&mentalaction=" + str(emoStateDict['MentalCommand Action']) + "&mentalpower=" + str(emoStateDict['MentalCommand Power'])
+    #data = "time=1&userid=2&signal=3&blink=4&leftwink=5&rightwink=6&surprise=7&frown=8&clench=9&smile=10&mentalaction=11&mentalpower=12"
+    print data
+    req = urllib2.Request("http://18.223.15.149:8000/notes")
+    req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+    response = urllib2.urlopen(req, data)
+    if insight.get_facial_expression_is_blink(insight.eState) == 1:
         blink_count = blink_count + 1
         if blink_count == 2:
             motor_on()
@@ -111,7 +119,7 @@ blink_count = 0
 while (1):#Determine if the event is a blink, if so call motor on function
     # set of operations to get state from Insight
     # returns 0 if successful
-    now = time.time()
+    #now = time.time()
    # print now
     #print blink_count
     state = insight.get_state(insight.eEvent)
@@ -135,9 +143,8 @@ while (1):#Determine if the event is a blink, if so call motor on function
             #    if (diff.microseconds/1000.0 > 250.0):
             #        last_command = datetime.now()
             #        send_emo_state_to_arduino()
-
     elif state != 0x0600:
         print "Internal error in Emotiv Engine ! "
-    elapsed = time.time() - now
-    print elapsed
+    #elapsed = time.time() - now
+    #print elapsed
 
