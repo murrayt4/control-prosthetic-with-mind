@@ -1,3 +1,5 @@
+This folder contains javascript code used for rendering a graph on the front-end of user data
+
 Below are more javascript file links used to create the charts:
 
 http://code.jquery.com/jquery-2.1.4.min.js
