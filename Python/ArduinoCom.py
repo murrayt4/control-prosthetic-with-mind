@@ -8,13 +8,13 @@ endMarker = 62
 
 def motor_on():
     ser.write(b'1') #write (b'1') to convert unicode to byte
-    Data = ser.readline().decode('ascii')
-    print(Data)
+    #Data = ser.readline().decode('ascii')
+    #print(Data)
     
 def motor_off():
     ser.write(b'0')#Writes 0 to arduino
-    Data = ser.readline().decode('ascii')
-    print(Data)
+    #Data = ser.readline().decode('ascii')
+    #print(Data)
     
 def valToArduino(emoStateTuple):
     sendStr = "%s,%s,%s, %s, %s,%s,%s, %s, %s,%s,%s, %s," % emoStateTuple
@@ -29,8 +29,9 @@ def setupSerial(serPort):
     # NOTE the user must ensure that the serial port and baudrate are correct
     # ~ serPort = "/dev/ttyS81"
     baudRate = 9600
-    ser = serial.Serial(serPort, baudRate,timeout = 1)
+    ser = serial.Serial(serPort, baudRate, timeout = .1)
     print "Serial port " + serPort + " opened  Baudrate " + str(baudRate)
+    time.sleep(1)
     #while 1:
     #    try:
     #        print(ser.readline())
