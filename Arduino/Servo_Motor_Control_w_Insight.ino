@@ -21,7 +21,7 @@ void setup() {
   pwm.begin();
   pwm.setPWMFreq(50);  // Analog servos run at ~50 Hz updates
   for( int i = 0; i < 6; i++){
-  setServoPulse(i,0.001);
+  setServoPulse(i,0.002);
   }
   delay(10);
   }
@@ -48,22 +48,22 @@ void loop() {
   if(Serial.available() > 0){
     InsightData = Serial.read();//Read byte from python, translate into either a 'High' to contract hand, or 'Low' to release hand
     if(InsightData == '1'){
-      Serial.print("Turn Motor On");
-      for (int i = 0; i < 6; i++){//Moves all servos to 0 degress
+      //Serial.print("Turn Motor On");
+      for (int i = 0; i < 6; i++){//Moves all servos to 180 degress
       setServoPulse(i,.001);
       }
       delay(1000);
-      for (int i = 0; i < 6; i++){//Moves all servos to 180 degrees
+      for (int i = 0; i < 6; i++){//Moves all servos to 0 degrees
       setServoPulse(i,.002);
       }
       delay(1000);
     }
    else if(InsightData == '0'){
-   //delay(1000);
-      Serial.print("Turn Motor Off");
+   delay(1000);
+      //Serial.print("Turn Motor Off");
       for (int i = 0; i < 6; i++){//Moves all servos to 180 degrees
       setServoPulse(i,.002);
-      }
-    }
+     }
+   }
   }
 }
