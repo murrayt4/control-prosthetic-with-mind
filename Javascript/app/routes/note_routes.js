@@ -1,7 +1,7 @@
 var ObjectID = require('mongodb').ObjectID;
 var path = require('path');
 const exphbs = require('express-handlebars');
-
+//The below methods create routes for various HTTP methods
 module.exports = function(app, db) {
 // note_routes.js
 app.put('/notes/:id', (req, res) => {
@@ -79,11 +79,12 @@ app.post('/login', (req,res)=> {//Opens second html page after button is submitt
 
 
 app.post('/notes', (req, res) => {//Uploads data to mongodb
+   //Creates a file that stores data in a variable
    const note = { Time: req.body.time, Userid: req.body.userid, Signal: req.body.signal,
         Blink: req.body.blink, Leftwink: req.body.leftwink, Rightwink: req.body.rightwink,
         Surprise: req.body.surprise, Frown: req.body.frown, Clench: req.body.clench,
         Smile: req.body.smile, MentalAction: req.body.mentalaction, MentalPower: req.body.me$
-   db.collection('notes').insert(note, (err, result) => {
+   db.collection('notes').insert(note, (err, result) => {//Inserts data into database
    if (err) {
    res.send({ 'error': 'An error has occurred' });
    } else {
