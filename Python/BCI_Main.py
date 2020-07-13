@@ -70,7 +70,6 @@ def send_emo_state_to_arduino(blink_count):
 #        blink_count = 1
 #        print blink_count
 #        if blink_count == 2:
-#            print "cool"
 #            motor_on()
 #            blink_count = 0
 #    return blink_count
